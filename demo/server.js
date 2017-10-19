@@ -15,7 +15,7 @@ const WARNLED_PIN = 12;
 //设备服务端口
 const SERVER_PORT = 8080;
 //消息上传地址
-const CONSOLE_URL = 'http://192.168.31.170:8066';
+const CONSOLE_URL = 'http://192.168.43.10:8066';
 //告警灯状态是否点亮
 var isWarnLEDStateOn = false;
 //告警功能是否开启
@@ -24,14 +24,16 @@ var isWarnLEDFuncOn = true;
 //监听传感器输出引脚
 rpio.open(LISTENT_PIN, rpio.INPUT, rpio.PULL_DOWN);
 rpio.poll(LISTENT_PIN, pin => {
-	log(':the state of pin ' + pin + ' is '+ rpio.read(pin))
-	//只有在告警功能打开时才会闪烁
-    isWarnLEDFuncOn && twinkLED(WARNLED_PIN, 1);
+    // log(':the state of pin ' + pin + ' is '+ rpio.read(pin))
+    
     //将监听信息发送至控制平台
-    CONSOLE_URL && http.get(CONSOLE_URL,(response)=>{
-    	log('send a message to server:' + CONSOLE_URL);
-    	log('and response of this server: ',response);
+	log('send a message to server:' + CONSOLE_URL);
+    CONSOLE_URL && http.get(CONSOLE_URL,(res)=>{
+    	log('and response of this server: ',res);
     })
+	//只有在告警功能打开时才会闪烁
+    isWarnLEDFuncOn && twinkLED(WARNLED_PIN, 0.5, 2);
+   
 
 //监听上斜波
 },rpio.POLL_HIGH);
@@ -70,22 +72,29 @@ server({ port: SERVER_PORT }, [
 log('server starts on 8080 port');
 
 //闪烁LED，关闭状态下的LED也能闪烁
-function twinkLED(pin, sec) {
-	//默认闪烁1s
+function twinkLED(pin, sec, n) {
+    //默认闪烁1s
     var sec = sec ? sec : 1;
-    if (isWarnLEDStateOn) {
+    //默认闪烁1次
+    var n = n ? n : 1
+    for(let i = 0; i < n; i++){
+         if (isWarnLEDStateOn) {
         rpio.write(pin, rpio.LOW);
         rpio.sleep(sec);
         rpio.write(pin, rpio.HIGH);
-    } else {
-        rpio.open(pin, rpio.OUTPUT);
-        rpio.write(pin, rpio.HIGH);
-        rpio.sleep(sec);
-        rpio.write(pin, rpio.LOW);
-        rpio.close(pin);
+        } else {
+            rpio.open(pin, rpio.OUTPUT);
+            rpio.write(pin, rpio.HIGH);
+            rpio.sleep(sec);
+            rpio.write(pin, rpio.LOW);
+            rpio.close(pin);
+        }
+        if(i !== n-1)
+            rpio.sleep(sec);
     }
+   
 
-    log(' now the warn LED state: ' + isWarnLEDStateOn)
+    // log(' now the warn LED state: ' + isWarnLEDStateOn)
 }
 
 //打开LED
