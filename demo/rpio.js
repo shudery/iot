@@ -18,8 +18,9 @@ const WARNLED_PIN = 12;
 //设备服务端口
 const SERVER_PORT = 8080;
 //消息上传地址
-// const CONSOLE_URL = 'http://192.168.43.10:8066';
-const CONSOLE_URL = 'http://192.168.31.170:8066';
+const CONSOLE_URL = 'http://192.168.43.10:8066';
+// const CONSOLE_URL = 'http://192.168.31.170:8066';
+//app推送hock地址
 const WEB_HOCK = 'https://hook.bearychat.com/=bwBAI/incoming/55725fec1b3e3b629c8929ba0d41fefe'
 //告警灯状态是否点亮
 var isWarnLEDStateOn = false;
@@ -43,7 +44,7 @@ rpio.poll(LISTENT_PIN, pin => {
     }'`;
     exec(cmdStr, function(err,stdout,stderr){
             err && log(err);
-            console.log(stdout);
+            // console.log(stdout);
     });
 
     // request.post(
@@ -67,6 +68,8 @@ rpio.poll(LISTENT_PIN, pin => {
     log('[rpio->server]request ' + CONSOLE_URL + '/warnSignal');
     CONSOLE_URL && http.get(CONSOLE_URL+'/warnSignal',(res)=>{
         log('[server->rpio] ',res);
+    }).on('error',e=>{
+        log('connect console server '+CONSOLE_URL+' failed.');
     })
     //只有在告警功能打开时才会闪烁
     isWarnLEDFuncOn && twinkLED(WARNLED_PIN, 0.5, 2);
@@ -161,5 +164,5 @@ function changeLED(pin) {
 }
 
 function log(str) {
-    console.log('[' + Date.now() + ']' + str);
+    console.log('[' + new Date().toString().split(' ').splice(1,4).join('-') + ']' + str);
 }
