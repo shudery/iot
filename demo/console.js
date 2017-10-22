@@ -7,7 +7,7 @@ var fs = require('fs');
 var n = 0;
 var iotRouterUrl = 'http://192.168.43.118:8080';
 // var iotRouterUrl = 'http://192.168.31.232:8080';
-
+log('iotRouterUrl:'+iotRouterUrl);
 var websocket;
 
 //设置跨域访问  

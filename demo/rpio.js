@@ -27,6 +27,7 @@ var isWarnLEDStateOn = false;
 //告警功能是否开启
 var isWarnLEDFuncOn = true;
 
+log('CONSOLE_URL:'+CONSOLE_URL);
 //监听传感器输出引脚
 rpio.open(LISTENT_PIN, rpio.INPUT, rpio.PULL_DOWN);
 rpio.poll(LISTENT_PIN, pin => {
